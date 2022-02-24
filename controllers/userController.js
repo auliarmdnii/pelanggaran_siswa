@@ -1,5 +1,6 @@
 let modelUser = require("../models/index").user
 let md5 = require(`md5`)
+let jwt = require( `jsonwebtoken`)
 
 exports.getUser = async (request, response) => {
     let dataUser = await modelUser.findAll()
@@ -66,4 +67,35 @@ exports.deleteUser = (request, response) => {
                 message: error.message
             })
         })
+}
+
+exports.authentication = async(request, response) => {
+    let data = {
+        username: request.body.username,
+        password: md5(request.body.password)
+    }
+
+    // validasi (cek data di tabel user)
+    let result = await modelUser.findOne({where: data})
+
+    if(result){
+        // data ditemukan
+        
+        // payload adalah data/informasi yg akan dienkripsi
+        let payload = JSON.stringify(result) //konversi dari bentuk objek ke JSON
+        let secretKey = `Lia itu sangat cantik`
+
+        // generate token
+        let token = jwt.sign(payload, secretKey)
+        return response.json({
+            logged: true,
+            token: token
+        })
+    } else {
+        // data tidak ditemukan
+        return response.json({
+            logged: false,
+            message: `Invalid Username or Password`
+        })
+    }
 }
