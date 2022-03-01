@@ -3,6 +3,7 @@ let modelSiswa = require("../models/index").siswa
 
 let path = require("path")
 let fs = require("fs")
+const req = require("express/lib/request")
 
 exports.getDataSiswa = (request, response) => {
     modelSiswa.findAll()
@@ -44,13 +45,26 @@ exports.addDataSiswa = (request, response) => {
         })
 }
 
-exports.editDataSiswa = (request, response) => {
+exports.editDataSiswa = async (request, response) => {
     let id = request.params.id_siswa
     let dataSiswa = {
         nama: request.body.nama,
         nis: request.body.nis,
         poin: request.body.poin,
         kelas: request.body.kelas
+    }
+
+    if(request.file){
+        // jika edit menyertakan file gambar
+        let siswa = await modelSiswa.findOne({where: {id_siswa: id}})
+        let oldFileName = siswa.image
+        
+        // delete file
+        let location = path.join(__dirname, "../image", oldFileName)
+        fs.unlink(location, error => console.log(error))
+
+        // menyisipkan nama file baru ke dalam objek dataSiswa
+        dataSiswa.image = request.file.filename
     }
 
     modelSiswa.update(dataSiswa, { where: { id_siswa: id } })
