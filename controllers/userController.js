@@ -2,12 +2,19 @@ let modelUser = require("../models/index").user
 let md5 = require(`md5`)
 let jwt = require( `jsonwebtoken`)
 
+const {validationResult} = require(`express-validator`)
+ 
 exports.getUser = async (request, response) => {
     let dataUser = await modelUser.findAll()
     return response.json(dataUser)
 }
 
 exports.addUser = (request, response) => {
+    let error = validationResult(request)
+    if(!error.isEmpty()) {
+        return response.json(error.array())
+    }
+    
     let dataUser = {
         nama_user: request.body.nama_user,
         username: request.body.username,
