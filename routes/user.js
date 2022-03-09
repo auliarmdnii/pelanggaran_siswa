@@ -10,6 +10,12 @@ const authorization = require("../middlewares/authorization")
 
 app.get("/", [authorization.authorization], userController.getUser)
 
+app.post("/find",[authorization.authorization], userController.findUser)
+
+app.post("/", [
+    app
+])
+
 app.post("/", [
     authorization.authorization, userValidator.validate
 ], userController.addUser)

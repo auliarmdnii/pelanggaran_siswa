@@ -1,7 +1,26 @@
+const { response } = require("express")
+const { request } = require("express")
+
 let modelPelanggaran = require("../models/index").pelanggaran
 
 exports.getPelanggaran = async (request, response) => {
     let dataPelanggaran = await modelPelanggaran.findAll()
+    return response.json(dataPelanggaran)
+}
+
+exports.findPelanggaran = async (request, response)  => {
+    let keyword = request.body.keyword
+    let sequelize = require(`sequelize`)
+    let Op = sequelize.Op
+
+    /** query = select * from pelanggan where
+     * nama_pelanggaran like '%keyword%'
+     */
+    let dataPelanggaran = await modelPelanggaran.findAll({
+        where: {
+            nama_pelanggaran: { [Op.like]: `%${keyword}%`}
+        }
+    })
     return response.json(dataPelanggaran)
 }
 
